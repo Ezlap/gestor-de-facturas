@@ -22,5 +22,6 @@ Aplicación web que permite cargar facturas (PDF, PNG, JPG), extraer sus datos c
 
 ## Variables de entorno
 | Variable | Descripción |
+| :--- | :---: |
 | mi_contraseña_super_secreta | Contraseña de SQL Server |
 | LLM_API_KEY | Clave del proveedor de LLM (no se sube al repositorio) |
