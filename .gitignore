@@ -1,0 +1,6 @@
+node/modules
+dist/
+.env
+*.log
+.angular/
+.DS_Store
