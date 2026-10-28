@@ -6,8 +6,8 @@ CREATE TABLE Proveedor (
 CREATE TABLE Documento (
     id INT IDENTITY PRIMARY KEY,
     nombre_archivo NVARCHAR(255) NOT NULL,
-    tipo VARCHAR(50) NOT NULL,
-    tamaño INT NOT NULL,
+    tipo_mime VARCHAR(50) NOT NULL,
+    tamano_bytes INT NOT NULL,
     fecha_carga DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     respuesta_llm NVARCHAR(MAX) NOT NULL
 );
