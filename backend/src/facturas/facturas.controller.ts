@@ -13,6 +13,11 @@ export class FacturasController {
         return this.service.listar(query);
     }
 
+    @Get('reportes/resumen')
+    resumen() {
+        return this.service.resumen();
+    }
+
     @Get(':id')
     obtener(@Param('id', ParseIntPipe) id: number) {
         return this.service.obtener(id);

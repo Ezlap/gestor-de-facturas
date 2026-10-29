@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException, UnprocessableEntityException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException, UnprocessableEntityException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Factura } from "./factura.entity";
 import { DataSource, Repository } from "typeorm";
 import { ListarFacturasDto } from "./dto/listar-facturas.dto";
 import { ActualizarFacturaDto } from "./dto/actualizar-factura.dto";
 import { Proveedor } from "../proveedores/proveedor.entity";
-
+import { ResumenFactura } from "./resumen-factura.interface";
 
 @Injectable()
 export class FacturasService {
@@ -89,5 +89,20 @@ async eliminar(id: number): Promise<void> {
     const factura = await this.obtener(id);
     factura.eliminada = true;
     await this.facturas.save(factura);
-    }
+}
+
+async resumen(): Promise<ResumenFactura[]> {
+    return this.dataSource.query(`
+        SELECT p.nombre AS proveedor,
+        CONVERT(char(7), f.fecha_emision, 120) AS mes,
+        f.moneda AS moneda,
+        SUM(f.total) AS totalFacturado,
+        COUNT(*) AS cantidadFacturas
+        FROM Factura f
+        INNER JOIN Proveedor p ON p.id = f.proveedor_id
+        WHERE f.eliminada = 0
+        GROUP BY p.nombre, CONVERT(char(7), f.fecha_emision, 120), f.moneda
+        ORDER BY mes DESC, proveedor, moneda;
+        `);
+    } 
 }
