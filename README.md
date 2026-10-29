@@ -25,3 +25,27 @@ Aplicación web que permite cargar facturas (PDF, PNG, JPG), extraer sus datos c
 | :--- | :---: |
 | mi_contraseña_super_secreta | Contraseña de SQL Server |
 | LLM_API_KEY | Clave del proveedor de LLM (no se sube al repositorio) |
+
+## API REST
+
+Base: `http://localhost:3000/api`
+
+| Método | Ruta | Descripción | Respuestas |
+|---|---|---|---|
+| GET | `/facturas` | Lista paginada, con filtros `proveedor`, `desde`, `hasta`, `page`, `pageSize` | 200, 400 |
+| GET | `/facturas/:id` | Detalle de una factura | 200, 400, 404 |
+| PUT | `/facturas/:id` | Corrige los datos de una factura | 200, 400, 404, 409, 422 |
+| DELETE | `/facturas/:id` | Eliminación lógica | 204, 400, 404 |
+
+### Formato de errores
+Todos los errores usan el formato *Problem Details* (`application/problem+json`):
+
+```json
+{
+  "type": "about:blank",
+  "title": "Recurso no encontrado",
+  "status": 404,
+  "detail": "No existe la factura con id 999.",
+  "instance": "/api/facturas/999"
+}
+```
