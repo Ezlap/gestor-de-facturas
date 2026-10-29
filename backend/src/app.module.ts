@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health.controller';
+import { FacturasModule } from './facturas/facturas.module';
 
 @Module({
   imports: [
@@ -18,13 +19,10 @@ import { HealthController } from './health.controller';
         autoLoadEntities: true,
         synchronize: false,
         options: { encrypt: false, trustServerCertificate: true },
-      })
-    })
+      }),
+    }),
+    FacturasModule
   ],
-})
-
-@Module({
-  imports: [],
   controllers: [HealthController],
 })
 export class AppModule {}

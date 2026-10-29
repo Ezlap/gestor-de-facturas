@@ -61,7 +61,7 @@ export class ProblemDetailsFilter implements ExceptionFilter {
             title: TITULOS[status] ?? 'Error',
             status,
             detail,
-            instance: req.url
+            instance: req.url,
             ...(errors ? { errors } : {}),
         });
     }

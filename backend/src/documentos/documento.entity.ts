@@ -5,7 +5,7 @@ export class Documento {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ name: 'nombre_archivos', type: 'nvarchar', length: 255})
+    @Column({ name: 'nombre_archivo', type: 'nvarchar', length: 255})
     nombreArchivo: string; 
 
     @Column({ name: 'tipo_mime', type: 'varchar', length: 50})

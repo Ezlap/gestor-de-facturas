@@ -3,7 +3,7 @@ import { Proveedor } from "../proveedores/proveedor.entity";
 import { Documento } from "../documentos/documento.entity";
 
 @Entity('Factura')
-export class factura {
+export class Factura {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -26,6 +26,9 @@ export class factura {
 
     @Column({ type: 'char', length: 3})
     moneda: string; 
+
+    @Column({ name: 'fecha_limite_pago', type: 'date', nullable: true })
+    fechaLimitePago: string | null;
 
     @Column({ name: 'numero_cliente', type: 'nvarchar', length: 100, nullable: true})
     numeroCliente: string | null;
