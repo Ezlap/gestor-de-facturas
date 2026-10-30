@@ -25,6 +25,7 @@ Aplicación web que permite cargar facturas (PDF, PNG, JPG), extraer sus datos c
 | :--- | :---: |
 | mi_contraseña_super_secreta | Contraseña de SQL Server |
 | LLM_API_KEY | Clave del proveedor de LLM |
+| LLM_MODEL | Modelo LLM |
 
 ## API REST
 
@@ -56,3 +57,6 @@ Todos los errores usan el formato *Problem Details* (`application/problem+json`)
 - **Eliminación lógica:** una factura es un documento contable que conviene conservar para auditoría. Se marca `eliminada = 1` y deja de aparecer en listados. El índice único es filtrado, así que se puede volver a cargar una factura eliminada.
 - **Duplicados:** los controla la base de datos con un índice único sobre (proveedor, número de factura); la API responde 409.
 - **Actualización:** el `PUT` se ejecuta en una transacción (resolver el proveedor y guardar la factura). La fecha límite de pago anterior a la de emisión devuelve 422.
+- **Validación del archivo por su contenido.** Se comprueban los primeros bytes, no la extensión ni el tipo declarado por el cliente.
+- **Llamada al LLM fuera de la transacción.** Así no se mantienen bloqueos en la base de datos mientras se espera una respuesta de red lenta.
+- **Respuesta original del LLM.** Se guarda en `Documento.respuesta_llm` para trazabilidad y para revisar posibles errores de extracción.
