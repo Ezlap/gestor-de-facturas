@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, UnprocessableEntityException } from "@nestjs/common";
+import { Injectable, NotFoundException, UnprocessableEntityException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Factura } from "./factura.entity";
 import { DataSource, Repository } from "typeorm";
@@ -6,12 +6,17 @@ import { ListarFacturasDto } from "./dto/listar-facturas.dto";
 import { ActualizarFacturaDto } from "./dto/actualizar-factura.dto";
 import { Proveedor } from "../proveedores/proveedor.entity";
 import { ResumenFactura } from "./resumen-factura.interface";
+import { Documento } from "../documentos/documento.entity";
+import 'multer'; 
+import { validarArchivo } from "../common/validar.archivo";
+import { GeminiService } from "../gemini/gemini.service";
 
 @Injectable()
 export class FacturasService {
     constructor(
         @InjectRepository(Factura) private readonly facturas: Repository<Factura>,
         private readonly dataSource: DataSource,
+        private readonly gemini: GeminiService,
     ) {}
 
     async listar(q: ListarFacturasDto) {
@@ -105,4 +110,40 @@ async resumen(): Promise<ResumenFactura[]> {
         ORDER BY mes DESC, proveedor, moneda;
         `);
     } 
+
+async crearDesdeArchivo(file: Express.Multer.File) {
+    const tipo = validarArchivo(file);
+    const { datos, bruto } = await this.gemini.analizarFactura(file.buffer, tipo);
+
+const id = await this.dataSource.transaction(async (manager) => {
+    let proveedor = await manager.findOne(Proveedor, { where: { nombre: datos.proveedor } });
+    if (!proveedor) {
+        proveedor = await manager.save(manager.create(Proveedor, { nombre: datos.proveedor }));
+    }
+    const documento = await manager.save(
+        manager.create(Documento, {
+        nombreArchivo: file.originalname,
+        tipoMime: tipo,
+        tamanoBytes: file.size,
+        respuestaLlm: bruto,
+        }),
+    );
+    const factura = await manager.save(
+    manager.create(Factura, {
+        proveedor,
+        documento,
+        numeroFactura: datos.numeroFactura,
+        fechaEmision: datos.fechaEmision,
+        total: datos.total,
+        moneda: datos.moneda,
+        fechaLimitePago: datos.fechaLimitePago ?? null,
+        numeroCliente: datos.numeroCliente ?? null,
+        eliminada: false,
+        }),
+    );
+    return factura.id;
+    });
+
+return this.obtener(id);
+}
 }
