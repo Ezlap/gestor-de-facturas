@@ -16,6 +16,16 @@ Devuelve únicamente JSON que cumpla el esquema. Reglas:
 - Las fechas van en formato estricto YYYY-MM-DD.
 - Si un dato opcional no aparece en el documento, usa null. No inventes ni adivines datos.`;
 
+const ETIQUETAS: Record<string, string> = {
+    proveedor: 'proveedor',
+    numeroFactura: 'número de factura',
+    fechaEmision: 'fecha de emisión',
+    total: 'total a pagar',
+    moneda: 'moneda',
+    fechaLimitePago: 'fecha límite de pago',
+    numeroCliente: 'número de cliente',
+};
+
 @Injectable()
 export class GeminiService {
     private readonly logger = new Logger(GeminiService.name);
@@ -70,17 +80,18 @@ async analizarFactura(buffer: Buffer, mimeType: string): Promise<{ datos: DatosF
     }
 
     const r = DatosFacturaSchema.safeParse(json);
-    if (!r.success) {
-        throw new UnprocessableEntityException(
-        'No se pudieron extraer datos válidos de la factura: ' +
-            r.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-        );
-    }
+if (!r.success) {
+    this.logger.warn(`Validación fallida: ${JSON.stringify(r.error.issues)}`);
+    const campos = [...new Set(r.error.issues.map((i) => ETIQUETAS[String(i.path[0])] ?? String(i.path[0])))];
+    throw new UnprocessableEntityException(
+    campos.length >= 4
+        ? 'El archivo no parece contener una factura legible. Verifica que el documento tenga información.'
+        : `No se pudo identificar con certeza: ${campos.join(', ')}. Revisa que el archivo sea legible o corrígelo manualmente.`,
+    );
+}
     if (r.data.fechaLimitePago && r.data.fechaLimitePago < r.data.fechaEmision) {
         throw new UnprocessableEntityException('La fecha límite de pago es anterior a la de emisión.');
     }
     return { datos: r.data, bruto};
-
-    
     }
 }

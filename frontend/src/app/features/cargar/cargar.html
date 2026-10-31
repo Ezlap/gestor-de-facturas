@@ -1,1 +1,73 @@
-<p>cargar works!</p>
+<h2 class="mb-1">Cargar factura</h2>
+<p class="text-muted">
+Sube una factura de servicios (energía, agua, telecomunicaciones…). La inteligencia artificial extraerá sus datos y los guardará automáticamente. Después podrás revisarlos y corregirlos.
+</p>
+
+<div class="card mb-4">
+    <div class="card-body">
+    <p class="small text-muted mb-3">
+        Formatos permitidos: <strong>PDF, PNG o JPG</strong> · Tamaño máximo: <strong>10 MB</strong>
+    </p>
+
+    <input
+        #entrada
+        type="file"
+        class="form-control mb-3"
+        accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+        [disabled]="cargando()"
+        (change)="alSeleccionar($event)"
+    />
+
+    @if (archivo(); as f) {
+    <div class="d-flex align-items-center gap-3 mb-3 p-2 border rounded">
+        @if (vistaPrevia(); as url) {
+        <img [src]="url" alt="Vista previa" class="rounded border" style="max-height: 120px; max-width: 160px" />
+        } @else {
+        <div class="fs-1">📄</div>
+        }
+        <div>
+            <div class="fw-semibold">{{ f.name }}</div>
+            <div class="text-muted small">{{ f.size / 1024 | number: '1.0-0' }} KB · {{ f.type }}</div>
+        </div>
+    </div>
+    }
+
+    @if (cargando()) {
+        @if (fase() === 'subiendo') {
+        <div class="progress mb-2" role="progressbar">
+            <div class="progress-bar" [style.width.%]="progreso()">{{ progreso() }}%</div>
+        </div>
+        <p class="small text-muted">Subiendo archivo…</p>
+    } @else {
+        <div class="progress mb-2" role="progressbar">
+        <div class="progress-bar progress-bar-striped progress-bar-animated w-100"></div>
+        </div>
+        <p class="small text-muted">Analizando la factura con IA… esto puede tardar unos segundos.</p>
+        }
+    }
+
+    <button class="btn btn-primary" [disabled]="!archivo() || cargando()" (click)="analizar()">
+        {{ cargando() ? 'Procesando…' : 'Analizar factura' }}
+    </button>
+</div>
+</div>
+
+@if (resultado(); as r) {
+<div class="card border-success">
+    <div class="card-header bg-success text-white">Resultado del análisis</div>
+    <div class="card-body">
+    <dl class="row mb-0">
+        <dt class="col-sm-4">Proveedor</dt><dd class="col-sm-8">{{ r.proveedor.nombre }}</dd>
+        <dt class="col-sm-4">Número de factura</dt><dd class="col-sm-8">{{ r.numeroFactura }}</dd>
+        <dt class="col-sm-4">Fecha de emisión</dt><dd class="col-sm-8">{{ r.fechaEmision }}</dd>
+        <dt class="col-sm-4">Fecha límite de pago</dt><dd class="col-sm-8">{{ r.fechaLimitePago ?? '—' }}</dd>
+        <dt class="col-sm-4">Total</dt><dd class="col-sm-8">{{ r.total | number: '1.2-2' }} {{ r.moneda }}</dd>
+        <dt class="col-sm-4">Número de cliente</dt><dd class="col-sm-8">{{ r.numeroCliente ?? '—' }}</dd>
+    </dl>
+    </div>
+    <div class="card-footer d-flex gap-2">
+        <a class="btn btn-outline-primary" [routerLink]="['/facturas', r.id]">Revisar o editar</a>
+        <button class="btn btn-outline-secondary" (click)="nueva(); entrada.value = ''">Cargar otra</button>
+    </div>
+</div>
+}

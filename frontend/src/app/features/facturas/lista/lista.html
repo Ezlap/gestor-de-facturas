@@ -1,1 +1,87 @@
-<p>lista works!</p>
+<h2 class="mb-3">Facturas</h2>
+
+<form class="card card-body mb-3" [formGroup]="filtros" (ngSubmit)="buscar()">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+        <label class="form-label small">Proveedor</label>
+        <input class="form-control" formControlName="proveedor" placeholder="Ej: Enel" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label small">Desde</label>
+        <input type="date" class="form-control" formControlName="desde" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label small">Hasta</label>
+        <input type="date" class="form-control" formControlName="hasta" />
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+        <button class="btn btn-primary flex-fill" type="submit">Filtrar</button>
+        <button class="btn btn-outline-secondary" type="button" (click)="limpiar()">Limpiar</button>
+    </div>
+</div>
+</form>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Proveedor</th>
+                    <th>N.º factura</th>
+                    <th>Emisión</th>
+                    <th>Vence</th>
+                    <th class="text-end">Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @for (f of datos()?.items; track f.id) {
+        <tr>
+            <td>{{ f.proveedor.nombre }}</td>
+            <td>{{ f.numeroFactura }}</td>
+            <td>{{ f.fechaEmision }}</td>
+            <td>{{ f.fechaLimitePago ?? '—' }}</td>
+            <td class="text-end">{{ f.total | number: '1.2-2' }} {{ f.moneda }}</td>
+            <td class="text-end text-nowrap">
+                <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/facturas', f.id]" title="Editar">✏️</a>
+                <button class="btn btn-sm btn-outline-danger" (click)="pedirConfirmacion(f)" title="Eliminar">🗑️</button>
+            </td>
+        </tr>
+        } @empty {
+        <tr>
+            <td colspan="6" class="text-center text-muted py-4">
+                @if (cargando()) { Cargando… } @else { No hay facturas para mostrar. }
+            </td>
+        </tr>
+        }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (datos(); as d) {
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <span class="text-muted small">{{ d.total }} facturas · Página {{ d.page }} de {{ d.totalPages || 1 }}</span>
+        <div class="btn-group">
+            <button class="btn btn-outline-secondary" [disabled]="d.page <= 1" (click)="irA(d.page - 1)">Anterior</button>
+            <button class="btn btn-outline-secondary" [disabled]="d.page >= d.totalPages" (click)="irA(d.page + 1)">Siguiente</button>
+        </div>
+</div>
+}
+
+@if (porEliminar(); as f) {
+<div class="modal d-block" tabindex="-1" style="background: rgb(0 0 0 / 50%)">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Eliminar factura</h5></div>
+                <div class="modal-body">
+                    ¿Eliminar la factura <strong>{{ f.numeroFactura }}</strong> de {{ f.proveedor.nombre }}?
+                </div>
+            <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="cancelar()">Cancelar</button>
+            <button class="btn btn-danger" (click)="confirmarEliminar()">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
