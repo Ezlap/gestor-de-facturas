@@ -75,9 +75,9 @@ Abre <http://localhost:4200>.
 | `DB_HOST` | Servidor de base de datos | `localhost` |
 | `DB_PORT` | Puerto de SQL Server | `1433` |
 | `DB_USER` | Usuario | `sa` |
-| `DB_PASSWORD` | **La misma** contraseña de la raíz | |
+| `DB_PASSWORD` | **La misma** contraseña de la raíz | DB_PASSWORD |
 | `DB_NAME` | Nombre de la base | `facturas` |
-| `LLM_API_KEY` | Clave de la API | |
+| `LLM_API_KEY` | Clave de la API | Para este caso Gemini |
 | `LLM_MODEL` | Modelo a usar | `gemini-3.1-flash-lite-preview` |
 
 ## API REST
