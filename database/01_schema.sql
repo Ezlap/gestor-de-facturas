@@ -1,3 +1,9 @@
+IF DB_ID('facturas') IS NULL
+    CREATE DATABASE facturas;
+GO
+USE facturas;
+GO
+
 CREATE TABLE Proveedor (
     id INT IDENTITY PRIMARY KEY,
     nombre NVARCHAR(200) NOT NULL UNIQUE

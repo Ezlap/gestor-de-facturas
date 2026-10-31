@@ -1,1 +1,97 @@
-<p>detalle works!</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Detalle de factura</h2>
+    <a class="btn btn-outline-secondary" routerLink="/facturas">← Volver al listado</a>
+</div>
+
+@if (cargando()) {
+<p class="text-muted">Cargando…</p>
+}
+
+@if (factura(); as f) {
+<div class="row g-4">
+    <div class="col-lg-8">
+    <form class="card card-body" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+        <p class="text-muted small">
+            Corrige aquí los datos extraídos por la IA. Las fechas usan el formato <strong>AAAA-MM-DD</strong>, igual que en la base de datos.
+        </p>
+
+    <div class="mb-3">
+        <label class="form-label">Proveedor</label>
+        <input class="form-control" formControlName="proveedor" [class.is-invalid]="mensaje('proveedor')" />
+        <div class="invalid-feedback">{{ mensaje('proveedor') }}</div>
+        <div class="form-text">Si escribes un proveedor nuevo, se creará automáticamente.</div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Número de factura</label>
+            <input class="form-control" formControlName="numeroFactura" [class.is-invalid]="mensaje('numeroFactura')" />
+            <div class="invalid-feedback">{{ mensaje('numeroFactura') }}</div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Número de cliente (opcional)</label>
+            <input class="form-control" formControlName="numeroCliente" [class.is-invalid]="mensaje('numeroCliente')" />
+            <div class="invalid-feedback">{{ mensaje('numeroCliente') }}</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Fecha de emisión</label>
+            <input class="form-control" formControlName="fechaEmision" placeholder="AAAA-MM-DD" [class.is-invalid]="mensaje('fechaEmision')" />
+            <div class="invalid-feedback">{{ mensaje('fechaEmision') }}</div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Fecha límite de pago (opcional)</label>
+            <input class="form-control" formControlName="fechaLimitePago" placeholder="AAAA-MM-DD" [class.is-invalid]="mensaje('fechaLimitePago')" />
+            <div class="invalid-feedback">{{ mensaje('fechaLimitePago') }}</div>
+        </div>
+    </div>
+
+    @if (form.errors?.['fechaLimiteAnterior'] && form.touched) {
+        <div class="alert alert-warning py-2">
+            La fecha límite de pago no puede ser anterior a la fecha de emisión.
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Total a pagar</label>
+            <input type="number" step="0.01" class="form-control" formControlName="total" [class.is-invalid]="mensaje('total')" />
+            <div class="invalid-feedback">{{ mensaje('total') }}</div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Moneda</label>
+            <input class="form-control text-uppercase" formControlName="moneda" maxlength="3" [class.is-invalid]="mensaje('moneda')" />
+            <div class="invalid-feedback">{{ mensaje('moneda') }}</div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit" [disabled]="guardando() || form.pristine">
+                {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+            </button>
+            <a class="btn btn-outline-secondary" routerLink="/facturas">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<div class="col-lg-4">
+    @if (f.documento; as d) {
+        <div class="card card-body">
+        <h6>Documento original</h6>
+            <dl class="small mb-2">
+                <dt>Archivo</dt><dd>{{ d.nombreArchivo }}</dd>
+                <dt>Tipo</dt><dd>{{ d.tipoMime }}</dd>
+                <dt>Tamaño</dt><dd>{{ d.tamanoBytes / 1024 | number: '1.0-0' }} KB</dd>
+                <dt>Cargado</dt><dd>{{ d.fechaCarga | date: 'yyyy-MM-dd HH:mm' }}</dd>
+            </dl>
+            <details>
+                <summary class="small">Respuesta original de la IA</summary>
+                <pre class="small bg-light p-2 mt-2 mb-0" style="max-height: 260px; overflow: auto">{{ respuestaLlm() }}</pre>
+            </details>
+        </div>
+    }
+    </div>
+</div>
+}

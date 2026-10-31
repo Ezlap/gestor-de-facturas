@@ -1,8 +1,7 @@
-import { HttpClient, HttpEvent, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { API_URL } from '../config';
 import { ActualizarFactura, Factura, FiltrosFacturas, Paginado, ResumenFactura } from "../models/factura.model";
-import { Observable } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class FacturasService {

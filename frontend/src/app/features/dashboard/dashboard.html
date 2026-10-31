@@ -1,1 +1,52 @@
-<p>dashboard works!</p>
+<h2 class="mb-3">Dashboard</h2>
+@if (cargando()) {
+<p class="text-muted">Cargando…</p>
+} @else {
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Facturas registradas</div>
+                <div class="display-5 fw-bold">{{ totalFacturas() }}</div>
+                <a routerLink="/facturas" class="small">Ver listado</a>
+            </div>
+        </div>
+    </div>
+
+    @for (m of porMoneda(); track m.moneda) {
+<div class="col-md-4">
+    <div class="card h-100">
+        <div class="card-body">
+            <div class="text-muted small">Total facturado en {{ m.moneda }}</div>
+            <div class="display-6 fw-bold">{{ m.total | number: '1.2-2' }}</div>
+            <div class="small text-muted">{{ m.cantidad }} facturas</div>
+        </div>
+        </div>
+    </div>
+    }
+</div>
+
+<div class="card">
+    <div class="card-header">Resumen por proveedor, mes y moneda</div>
+    <div class="table-responsive">
+        <table class="table table-sm mb-0">
+            <thead class="table-light">
+                <tr><th>Proveedor</th><th>Mes</th><th>Moneda</th><th class="text-end">Total</th><th class="text-end">Facturas</th></tr>
+        </thead>
+        <tbody>
+        @for (r of resumen(); track r.proveedor + r.mes + r.moneda) {
+            <tr>
+                <td>{{ r.proveedor }}</td>
+                <td>{{ r.mes }}</td>
+                <td>{{ r.moneda }}</td>
+                <td class="text-end">{{ r.totalFacturado | number: '1.2-2' }}</td>
+                <td class="text-end">{{ r.cantidadFacturas }}</td>
+            </tr>
+            } @empty {
+                <tr><td colspan="5" class="text-center text-muted py-3">Aún no hay facturas. Sube la primera desde “Cargar factura”.</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+}

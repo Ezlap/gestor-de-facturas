@@ -81,7 +81,6 @@ export class Lista implements OnInit {
       next: () => {
         this.porEliminar.set(null);
         this.notificaciones.ok(`Factura ${f.numeroFactura} eliminada.`);
-        // Si era la única de la página, retrocede una
         if (this.datos()?.items.length === 1 && this.pagina() > 1) {
           this.pagina.update((p) => p - 1);
         }
